@@ -18,6 +18,7 @@ namespace BossSystem
 
         private readonly RequestDelegate _next;
 
+
         public ExceptionMiddleware(RequestDelegate next)
         {
             _next = next;
@@ -39,8 +40,11 @@ namespace BossSystem
         {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)ConfigurateExceptionTypes(exception);
-
-            return context.Response.WriteAsync(JsonConvert.SerializeObject(exception.Message ?? "Internal Server Error.",
+            ExceptionDetails details = new ExceptionDetails
+            {
+                Message = exception.Message ?? "Internal Server Error." 
+            };
+            return context.Response.WriteAsync(JsonConvert.SerializeObject(details,
                 Formatting.None, new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()

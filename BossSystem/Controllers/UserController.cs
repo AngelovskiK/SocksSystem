@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace BossSystem.Controllers
 {
+    [Produces("application/json")]
     [ApiController]
     [Authorize]
     [Route("[controller]")]
@@ -59,6 +60,13 @@ namespace BossSystem.Controllers
         public UserSelfDto GetSelf()
         {
             return userService.GetSelf();
+        }
+
+        [HttpGet("socksPrice")]
+        [Authorize]
+        public int GetSocksPrice()
+        {
+            return 1;
         }
     }
 }

@@ -39,7 +39,7 @@ namespace BossSystem.Services
             moneyBalance += user.Sells.Select(s => s.Ammount * s.Price).Sum();
             if(moneyBalance < ammount * price)
             {
-                return false;
+                throw new BadRequestException("Insufficient funds");
             }
             Buy buy = new Buy
             {
@@ -82,6 +82,7 @@ namespace BossSystem.Services
                     Id = user.Id,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
+                    Email = user.Email,
                     MoneyBalance = user.Deposits.Select(s => s.Ammount).Sum() + user.Sells.Select(s => s.Ammount * s.Price).Sum() - user.Buys.Select(s => s.Ammount * s.Price).Sum(),
                     SocksBalance = user.Buys.Select(s => s.Ammount).Sum() - user.Sells.Select(s => s.Ammount).Sum()
                 }
@@ -92,17 +93,17 @@ namespace BossSystem.Services
         {
             if (request.Email == default || request.Email.Trim().Length == 0)
             {
-                return null; // to do: add exception
+                throw new BadRequestException("Email can not be empty");
             }
             if (request.Password == default || request.Password.Trim().Length == 0)
             {
-                return null; // to do: add exception
+                throw new BadRequestException("Password can not be emptya");
             }
 
             User user = await dbContext.Users.Where(u => u.Email.Equals(request.Email.Trim())).SingleOrDefaultAsync();
             if(user == default)
             {
-                return null; // to do: add exception
+                throw new BadRequestException("No user registered with that email");
             }
 
             if (BCryptHelper.CheckPassword(request.Password, user.Password))
@@ -124,10 +125,11 @@ namespace BossSystem.Services
                 .Include(u => u.Sells)
                 .FirstOrDefaultAsync();
             int socksBalance = 0;
-            socksBalance += user.Buys.Select(b => b.Ammount * b.Price).Sum();
+            socksBalance += user.Buys.Select(b => b.Ammount).Sum();
+            socksBalance -= user.Sells.Select(b => b.Ammount).Sum();
             if (socksBalance < ammount)
             {
-                return false;
+                throw new BadRequestException("Not enough socks");
             }
             Sell sell = new Sell
             {
