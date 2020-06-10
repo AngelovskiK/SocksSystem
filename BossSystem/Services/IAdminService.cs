@@ -11,5 +11,6 @@ namespace BossSystem.Services
     {
         Task<string> LoginAdminAsync(AdminLoginRequest request);
         Task<IEnumerable<UserDto>> GetAllUsersAsync();
+        Task<bool> AddUserAsync(AddUserRequest request);
     }
 }

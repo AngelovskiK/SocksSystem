@@ -7,7 +7,7 @@ namespace BossSystem.Database
 {
     public class ApplicationDbContext: DbContext
     {
-        IConfiguration Configuration;
+        private readonly IConfiguration Configuration;
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
             : base(options)

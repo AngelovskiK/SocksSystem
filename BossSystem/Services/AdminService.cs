@@ -1,6 +1,7 @@
 ﻿using BossSystem.Database;
 using BossSystem.Dtos;
 using BossSystem.Dtos.Requests;
+using BossSystem.Models;
 using BossSystem.Models.Dbos;
 using BossSystem.Services.Auth;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DevOne.Security.Cryptography.BCrypt;
 
 namespace BossSystem.Services
 {
@@ -23,6 +25,45 @@ namespace BossSystem.Services
             this.dbContext = applicationDbContext;
             this.Configuration = configuration;
             this.authService = authService;
+        }
+
+        public async Task<bool> AddUserAsync(AddUserRequest request)
+        {
+            if (!authService.IsAdmin)
+            {
+                return false; // to do: add exception
+            }
+            if(request.FirstName == default || request.FirstName.Trim().Length == 0)
+            {
+                return false; // to do: add exception
+            }
+            if (request.LastName == default || request.LastName.Trim().Length == 0)
+            {
+                return false; // to do: add exception
+            }
+            if (request.Email == default || request.Email.Trim().Length == 0)
+            {
+                return false; // to do: add exception
+            }
+            if (request.Password == default || request.Password.Trim().Length == 0)
+            {
+                return false; // to do: add exception
+            }
+
+            if (dbContext.Users.Where(user => user.Email.Equals(request.Email)).Count() != 0)
+            {
+                return false; // to do: add exception
+            }
+            User user = new User
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Password = BCryptHelper.HashPassword(request.Password, BCryptHelper.GenerateSalt(12)),
+                Email = request.Email
+            };
+            dbContext.Users.Add(user);
+            await dbContext.SaveChangesAsync();
+            return true;
         }
 
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()

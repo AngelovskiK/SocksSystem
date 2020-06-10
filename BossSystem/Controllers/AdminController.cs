@@ -11,10 +11,11 @@ using System.Threading.Tasks;
 namespace BossSystem.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("[controller]")]
     public class AdminController 
     {
-        IAdminService adminService;
+        private readonly IAdminService adminService;
 
         public AdminController(IAdminService adminService)
         {
@@ -28,11 +29,16 @@ namespace BossSystem.Controllers
             return await adminService.LoginAdminAsync(request);
         }
 
-        [Authorize]
         [HttpGet("")]
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
         {
             return await adminService.GetAllUsersAsync();
+        }
+
+        [HttpPut("user")]
+        public async Task<bool> AddUserAsync([FromBody] AddUserRequest request)
+        {
+            return await adminService.AddUserAsync(request);
         }
     }
 }
