@@ -66,6 +66,7 @@ namespace BossSystem
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAdminService, AdminService>();
+            services.AddScoped<IUserService, UserService>();
 
             services.AddControllers();
         }
