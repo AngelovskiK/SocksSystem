@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 
 namespace BossSystem.Controllers
 {
+    [Produces("application/json")]
+
     [ApiController]
     [Authorize]
     [Route("[controller]")]

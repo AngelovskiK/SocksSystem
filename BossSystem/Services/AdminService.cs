@@ -35,24 +35,24 @@ namespace BossSystem.Services
             }
             if(request.FirstName == default || request.FirstName.Trim().Length == 0)
             {
-                return false; // to do: add exception
+                throw new BadRequestException("First name can not be empty");
             }
             if (request.LastName == default || request.LastName.Trim().Length == 0)
             {
-                return false; // to do: add exception
+                throw new BadRequestException("Last name can not be empty");
             }
             if (request.Email == default || request.Email.Trim().Length == 0)
             {
-                return false; // to do: add exception
+                throw new BadRequestException("Email can not be empty");
             }
             if (request.Password == default || request.Password.Trim().Length == 0)
             {
-                return false; // to do: add exception
+                throw new BadRequestException("Password can not be empty");
             }
 
             if (dbContext.Users.Where(user => user.Email.Equals(request.Email)).Count() != 0)
             {
-                return false; // to do: add exception
+                throw new BadRequestException("Email already registered to a user!");
             }
             User user = new User
             {
@@ -95,7 +95,7 @@ namespace BossSystem.Services
                 return authService.GetTokenForAdmin();
             }else
             {
-                return null;
+                throw new NotAuthorizedException();
             }
         }
     }

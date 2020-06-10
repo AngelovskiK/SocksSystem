@@ -85,15 +85,15 @@ namespace BossSystem
 
             app.UseRouting();
 
+            app.UseCors("_myAllowSpecificOrigins");
+
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-            }); 
-            
-            app.UseCors("_myAllowSpecificOrigins");
+            });
 
         }
     }
