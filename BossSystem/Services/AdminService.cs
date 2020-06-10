@@ -31,7 +31,7 @@ namespace BossSystem.Services
         {
             if (!authService.IsAdmin)
             {
-                return false; // to do: add exception
+                throw new NotAuthorizedException();
             }
             if(request.FirstName == default || request.FirstName.Trim().Length == 0)
             {
@@ -72,14 +72,15 @@ namespace BossSystem.Services
             {
                 return null; // to do: add exception
             }
-            return await dbContext.Users.Select(user =>
+            List<User> users = await dbContext.Users.Include(u => u.Deposits).Include(u => u.Buys).Include(u => u.Sells).ToListAsync();
+            return await dbContext.Users.Include(u => u.Deposits).Include(u => u.Buys).Include(u => u.Sells).Select(user =>
                 new UserDto {
                     Id = user.Id,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Email = user.Email,
-                    MoneyBalance = 0,
-                    SocksBalance = 0
+                    MoneyBalance = user.Deposits.Select(s => s.Ammount).Sum() + user.Sells.Select(s => s.Ammount * s.Price).Sum() - user.Buys.Select(s => s.Ammount * s.Price).Sum(),
+                    SocksBalance = user.Buys.Select(s => s.Ammount).Sum() - user.Sells.Select(s => s.Ammount).Sum()
                 }
             ).ToListAsync();
         }

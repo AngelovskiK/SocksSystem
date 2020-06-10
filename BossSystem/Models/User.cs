@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace BossSystem.Models
 {
@@ -21,5 +16,9 @@ namespace BossSystem.Models
         public string LastName { get; set; }
         [Required]
         public string Email { get; set; }
+        
+        public List<Deposit> Deposits { get; set; }
+        public List<Buy> Buys { get; set; }
+        public List<Sell> Sells { get; set; }
     }
 }

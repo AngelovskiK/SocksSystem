@@ -1,4 +1,5 @@
 ﻿using BossSystem.Database;
+using BossSystem.Dtos;
 using BossSystem.Dtos.Requests;
 using BossSystem.Models;
 using BossSystem.Services.Auth;
@@ -21,6 +22,70 @@ namespace BossSystem.Services
         {
             this.dbContext = applicationDbContext;
             this.authService = authService;
+        }
+
+        public async Task<bool> BuySocksAsync(int ammount)
+        {
+            const int price = 1;
+
+            User user = await dbContext.Users.Where(u => u. Id == authService.CurrentUser.Id)
+                .Include(u => u.Deposits)
+                .Include(u => u.Sells)
+                .Include(u => u.Buys)
+                .FirstOrDefaultAsync();
+            int moneyBalance = 0;
+            moneyBalance += user.Deposits.Select(d => d.Ammount).Sum();
+            moneyBalance -= user.Buys.Select(b => b.Ammount * b.Price).Sum();
+            moneyBalance += user.Sells.Select(s => s.Ammount * s.Price).Sum();
+            if(moneyBalance < ammount * price)
+            {
+                return false;
+            }
+            Buy buy = new Buy
+            {
+                UserId = user.Id,
+                Ammount = ammount,
+                Price = price,
+                TimestampBought = DateTime.Now
+            };
+            dbContext.Buys.Add(buy);
+            await dbContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DepositMoneyAsync(DepositRequest request)
+        {
+            Deposit deposit = new Deposit
+            {
+                UserId = authService.CurrentUser.Id,
+                Ammount = request.Ammount,
+                TimestampDeposited = DateTime.Now
+            };
+            dbContext.Deposits.Add(deposit);
+            await dbContext.SaveChangesAsync();
+            return true;
+        }
+
+        public UserSelfDto GetSelf()
+        {
+            return authService.CurrentUser;
+        }
+
+        public async Task<UserDto> GetUserInfoAsync()
+        {
+            return await dbContext.Users.Where(user => user.Id == authService.CurrentUser.Id)
+                .Include(u => u.Deposits)
+                .Include(u => u.Buys)
+                .Include(u => u.Sells).Select(user =>
+                new UserDto
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    MoneyBalance = user.Deposits.Select(s => s.Ammount).Sum() + user.Sells.Select(s => s.Ammount * s.Price).Sum() - user.Buys.Select(s => s.Ammount * s.Price).Sum(),
+                    SocksBalance = user.Buys.Select(s => s.Ammount).Sum() - user.Sells.Select(s => s.Ammount).Sum()
+                }
+             ).FirstOrDefaultAsync();
         }
 
         public async Task<string> LoginUserAsync(UserLoginRequest request)
@@ -48,6 +113,32 @@ namespace BossSystem.Services
             {
                 return null;
             }
+        }
+
+        public async Task<bool> SellSocksAsync(int ammount)
+        {
+            const int price = 1;
+
+            User user = await dbContext.Users.Where(u => u.Id == authService.CurrentUser.Id)
+                .Include(u => u.Buys)
+                .Include(u => u.Sells)
+                .FirstOrDefaultAsync();
+            int socksBalance = 0;
+            socksBalance += user.Buys.Select(b => b.Ammount * b.Price).Sum();
+            if (socksBalance < ammount)
+            {
+                return false;
+            }
+            Sell sell = new Sell
+            {
+                UserId = user.Id,
+                Ammount = ammount,
+                Price = price,
+                TimestampBought = DateTime.Now
+            };
+            dbContext.Sells.Add(sell);
+            await dbContext.SaveChangesAsync();
+            return true;
         }
     }
 }

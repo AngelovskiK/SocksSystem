@@ -29,5 +29,36 @@ namespace BossSystem.Controllers
             return await userService.LoginUserAsync(request);
         }
 
+        [HttpPost("deposit")]
+        public async Task<bool> DepositMoneyAsync([FromBody] DepositRequest request)
+        {
+            return await userService.DepositMoneyAsync(request);
+        }
+
+        [HttpPost("buy/{ammount}")]
+        public async Task<bool> BuySocksAsync([FromRoute] int ammount)
+        {
+            return await userService.BuySocksAsync(ammount);
+        }
+
+        [HttpPost("sell/{ammount}")]
+        public async Task<bool> SellSocksAsync([FromRoute] int ammount)
+        {
+            return await userService.SellSocksAsync(ammount);
+        }
+
+        [HttpGet("info")]
+        [Authorize]
+        public async Task<UserDto> GetUserInfoAsync()
+        {
+            return await userService.GetUserInfoAsync();
+        }
+
+        [HttpGet("self")]
+        [Authorize]
+        public UserSelfDto GetSelf()
+        {
+            return userService.GetSelf();
+        }
     }
 }

@@ -25,6 +25,9 @@ namespace BossSystem.Database
 
         public DbSet<SiteConfiguration> SiteConfigurations { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Deposit> Deposits { get; set; }
+        public DbSet<Buy> Buys { get; set; }
+        public DbSet<Sell> Sells { get; set; }
     }
 }
 
